@@ -22,38 +22,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatTitle = document.getElementById('chatTitle');
     let currentlyOpenChatId = null;
     // Function to open a specific chat
-   
     window.openChat = async (chatId) => {
-        const messagesDiv = document.getElementById('messages');
-        const chatArea = document.getElementById('chatArea');
-        const chatTitle = document.getElementById('chatTitle');
-    
         currentlyOpenChatId = chatId;
-    
+
         try {
             const response = await fetch(`/chat/${chatId}/messages`);
             const data = await response.json();
-    
+
             if (response.ok) {
                 messagesDiv.innerHTML = ''; // Clear existing messages
                 data.messages.forEach(message => {
                     const messageElement = document.createElement('div');
-                    const senderProfilePic = document.createElement('img');
-                    senderProfilePic.classList.add('sender-profile-pic');
-                    senderProfilePic.src = message.sender.profilePicture || '/path/to/default/profile.jpg';
-                    senderProfilePic.alt = `${message.sender.username}'s profile picture`;
-    
-                    const messageContent = document.createElement('span');
-                    messageContent.textContent = `${message.sender.username}: ${message.content}`;  // Customize display
-    
-                    messageElement.appendChild(senderProfilePic);
-                    messageElement.appendChild(messageContent);
-    
+                    messageElement.textContent = `${message.sender.username}: ${message.content}`; // Customize display
                     messagesDiv.appendChild(messageElement);
                 });
-    
+
                 chatArea.style.display = 'block';
                 socket.emit('joinChat', chatId);
+                //Fetch the chat name if it is group
+                const chatDetails = await fetchUserChats();
+                let name = "";
+                for (let i = 0; i < chatDetails.length; i++) {
+                    if (chatDetails[i]._id == chatId) {
+                        name = chatDetails[i].groupName;
+                    }
+                }
+                chatTitle.textContent = name;
             } else {
                 console.error('Failed to fetch chat messages:', data.message);
                 alert('Failed to fetch chat messages.');
@@ -63,87 +57,50 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Failed to fetch chat messages.');
         }
     };
+    async function fetchUserChats() {
+        try {
+            const response = await fetch('/chat/chats');
+            const data = await response.json();
     
-
+            if (response.ok) {
+                chatList.innerHTML = ''; // Clear existing list
     
-    let currentPage = 1;
-const chatsPerPage = 3;
-
-async function fetchUserChats(page = 1) {
-    try {
-        const response = await fetch(`/chat/chats?page=${page}&limit=${chatsPerPage}`);
-        const data = await response.json();
-
-        if (response.ok) {
-            chatList.innerHTML = ''; // Clear existing list
-
-            data.chats.forEach(chat => {
-                const chatElement = document.createElement('div');
-                chatElement.classList.add('chat-item');
-
-                // Create an element for the profile picture (assume using the first participant's picture)
-                const profilePicElement = document.createElement('img');
-                profilePicElement.classList.add('profile-pic');
-                const profilePicUrl = chat.participants.length > 0 ? chat.participants[0].profilePicture : '/path/to/default/profile.jpg';
-                profilePicElement.src = profilePicUrl;
-                profilePicElement.alt = 'Profile Picture';
-
-                // Append the profile picture to the chat element
-                chatElement.appendChild(profilePicElement);
-
-                // For a group chat, show the group name or the username of the other participant in a private chat
-                if (chat.groupName) {
-                    chatElement.textContent += ` ${chat.groupName}`;  // Display group name
-                } else {
-                    // Private chat, show the username of the other participant
-                    const otherParticipants = chat.participants.filter(participant => participant.username !== window.currentUsername);
-                    if (otherParticipants.length > 0) {
-                        chatElement.textContent += ` ${otherParticipants[0].username}`;
+                data.chats.forEach(chat => {
+                    const chatElement = document.createElement('div');
+                    chatElement.classList.add('chat-item');
+    
+                    // If it's a group chat, show the group name
+                    if (chat.groupName) {
+                        chatElement.textContent = chat.groupName;
+                    } else {
+                        // For private chats, filter participants by excluding the current user
+                        if (chat.participants && chat.participants.length > 1) {
+                            const otherParticipants = chat.participants.filter(participant => participant.username !== window.currentUsername);
+    
+                            // Display the username of the other participant in the private chat
+                            if (otherParticipants.length > 0) {
+                                chatElement.textContent = otherParticipants[0].username;  // Display the other user's username
+                            }
+                        } else {
+                            chatElement.textContent = 'Private Chat';  // Fallback for cases with no participants
+                        }
                     }
-                }
-
-                // When clicking on the chat, open the chat
-                chatElement.addEventListener('click', () => openChat(chat._id));
-                chatList.appendChild(chatElement);
-            });
-
-            // Update pagination controls
-            updatePaginationControls(data.currentPage, data.totalPages);
-            return data.chats;
-        } else {
-            console.error('Failed to fetch user chats:', data.message);
+    
+                    // When clicking on the chat, open the chat
+                    chatElement.addEventListener('click', () => openChat(chat._id));
+                    chatList.appendChild(chatElement);
+                });
+    
+                return data.chats;
+            } else {
+                console.error('Failed to fetch user chats:', data.message);
+                alert('Failed to fetch user chats.');
+            }
+        } catch (error) {
+            console.error('Error fetching user chats:', error);
             alert('Failed to fetch user chats.');
         }
-    } catch (error) {
-        console.error('Error fetching user chats:', error);
-        alert('Failed to fetch user chats.');
     }
-}
-
-// Update pagination controls
-function updatePaginationControls(currentPage, totalPages) {
-    const paginationContainer = document.getElementById('paginationControls');
-    paginationContainer.innerHTML = '';
-
-    // Add Previous Button
-    if (currentPage > 1) {
-        const prevButton = document.createElement('button');
-        prevButton.textContent = 'Previous';
-        prevButton.classList.add('btn', 'btn-primary');
-        prevButton.addEventListener('click', () => fetchUserChats(currentPage - 1));
-        paginationContainer.appendChild(prevButton);
-    }
-
-    // Add Next Button
-    if (currentPage < totalPages) {
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.classList.add('btn', 'btn-primary');
-        nextButton.addEventListener('click', () => fetchUserChats(currentPage + 1));
-        paginationContainer.appendChild(nextButton);
-    }
-}
-
     
     
     // Private Chat Modal Functions

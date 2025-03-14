@@ -185,30 +185,41 @@ exports.sendMessage = async (req, res) => {
 };
 
 
-// Get all chats from the user with pagination
+
+// Get chat messages
+exports.getChatMessages = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const userId = req.session.userId;
+
+        const chat = await Chat.findById(chatId).populate('messages.sender', 'username profilePicture');
+
+        if (!chat) {
+            return res.status(404).json({ message: 'Chat not found' });
+        }
+
+        if (!chat.participants.includes(userId)) {
+            return res.status(403).json({ message: 'You are not a participant in this chat' });
+        }
+
+        res.status(200).json({ messages: chat.messages });
+    } catch (error) {
+        console.error('Error getting chat messages:', error);
+        res.status(500).json({ message: 'Failed to get chat messages' });
+    }
+};
+
+//Get all chats from the user
 exports.getUserChats = async (req, res) => {
     try {
         const userId = req.session.userId;
-        const page = parseInt(req.query.page) || 1;  // Default to page 1 if not provided
-        const limit = parseInt(req.query.limit) || 10;  // Default to 10 chats per page if not provided
-        const skip = (page - 1) * limit;  // Skip chats for pagination
 
         // Find all chats where the user is a participant
         const chats = await Chat.find({ participants: userId })
             .populate('participants', 'username profilePicture') // Populate participant info
-            .sort({ 'messages.timestamp': -1 })  // Sort by last message timestamp (descending)
-            .skip(skip)  // Skip chats based on pagination
-            .limit(limit);  // Limit the number of chats returned
+            .sort({ 'messages.timestamp': -1 }); // Sort by last message timestamp (descending)
 
-        // Count the total number of chats for pagination
-        const totalChats = await Chat.countDocuments({ participants: userId });
-
-        res.status(200).json({
-            chats,
-            totalChats,
-            currentPage: page,
-            totalPages: Math.ceil(totalChats / limit)
-        });
+        res.status(200).json({ chats });
     } catch (error) {
         console.error('Error getting user chats:', error);
         res.status(500).json({ message: 'Failed to get user chats' });

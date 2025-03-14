@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Custom Styles */
+        .chat-item:hover {
+            background-color: #f2f2f2;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Welcome, <%= username %>!</h1>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="/settings" class="btn btn-primary">Settings</a>
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+
+        <h2>Your Chats</h2>
+        <div id="chatList" class="list-group">
+            <!-- Chat list will be dynamically loaded here via JavaScript -->
+        </div>
+
+        <h2 class="mt-4">Create New Chat</h2>
+        <button id="openPrivateChatModalBtn" class="btn btn-success" data-toggle="modal"
+            data-target="#privateChatModal">Private Chat</button>
+        <button id="openGroupChatModalBtn" class="btn btn-success" data-toggle="modal"
+            data-target="#groupChatModal">Group Chat</button>
+
+        <!-- Private Chat Modal -->
+        <div class="modal fade" id="privateChatModal" tabindex="-1" role="dialog"
+            aria-labelledby="privateChatModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="privateChatModalLabel">Create Private Chat</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="recipientEmail">Recipient Email:</label>
+                            <input type="email" class="form-control" id="recipientEmail"
+                                placeholder="Enter recipient email">
+                        </div>
+                        <p id="privateChatError" class="text-danger"></p>
+                        <p id="privateChatSuccess" class="text-success"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="createPrivateChatBtn">Create Chat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group Chat Modal -->
+        <div class="modal fade" id="groupChatModal" tabindex="-1" role="dialog" aria-labelledby="groupChatModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="groupChatModalLabel">Create Group Chat</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="groupName">Group Name:</label>
+                            <input type="text" class="form-control" id="groupName" placeholder="Enter group name"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientEmails">Recipient Emails (comma separated):</label>
+                            <textarea class="form-control" id="recipientEmails"
+                                placeholder="Enter recipient emails (comma separated)" required></textarea>
+                        </div>
+                        <p id="groupChatError" class="text-danger"></p>
+                        <p id="groupChatSuccess" class="text-success"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="createGroupChatBtn">Create Group</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area (Hidden initially) -->
+        <div id="chatArea" style="display: none;" class="mt-4">
+            <h2>Chat</h2>
+            <h3 id="chatTitle"></h3>
+            <div id="messages" class="border p-3 mb-3" style="height: 300px; overflow-y: auto;"></div>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="sendMessageBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+    </script>
+    <script>
+        window.currentUsername = "<%= username %>";  // Embeds the username into a global JavaScript variable
+      </script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>
