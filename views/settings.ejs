@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Basic Styles for Error and Success Messages */
+        .error-message {
+            color: red;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: green;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Settings</h1>
+            <a href="#" onclick="goBack()" class="btn btn-secondary">Back</a>
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-lg mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Profile Picture</h4>
+                <form id="profilePictureForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="profilePicture">Upload Profile Picture:</label>
+                        <input type="file" class="form-control-file" id="profilePicture" name="profilePicture"
+                            accept="image/*">
+                    </div>
+                    <button type="button" id="uploadProfilePictureBtn" class="btn btn-primary">Upload</button>
+                    <p id="profilePictureError" class="error-message"></p>
+                    <p id="profilePictureSuccess" class="success-message"></p>
+                </form>
+                <img id="profilePicturePreview" src="<%= user.profilePicture %>" alt="Profile Picture"
+                    style="max-width: 100px; max-height: 100px;">
+            </div>
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-lg mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Edit Username</h4>
+                <form id="editUsernameForm">
+                    <div class="form-group">
+                        <label for="newUsername">New Username:</label>
+                        <input type="text" class="form-control" id="newUsername" name="newUsername" required>
+                    </div>
+                    <button type="button" id="editUsernameBtn" class="btn btn-primary">Update Username</button>
+                    <p id="usernameError" class="error-message"></p>
+                    <p id="usernameSuccess" class="success-message"></p>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-lg">
+            <div class="card-body">
+                <h4 class="card-title">Edit Email</h4>
+                <form id="editEmailForm">
+                    <div class="form-group">
+                        <label for="newEmail">New Email:</label>
+                        <input type="email" class="form-control" id="newEmail" name="newEmail" required>
+                    </div>
+                    <button type="button" id="editEmailBtn" class="btn btn-primary">Update Email</button>
+                    <p id="emailError" class="error-message"></p>
+                    <p id="emailSuccess" class="success-message"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>
