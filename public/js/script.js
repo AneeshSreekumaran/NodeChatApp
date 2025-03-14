@@ -21,6 +21,146 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupChatSuccess = document.getElementById('groupChatSuccess');
     const chatTitle = document.getElementById('chatTitle');
     let currentlyOpenChatId = null;
+    const profilePictureForm = document.getElementById('profilePictureForm');
+    const uploadProfilePictureBtn = document.getElementById('uploadProfilePictureBtn');
+    const profilePictureInput = document.getElementById('profilePicture');
+    const profilePicturePreview = document.getElementById('profilePicturePreview');
+    const profilePictureError = document.getElementById('profilePictureError');
+    const profilePictureSuccess = document.getElementById('profilePictureSuccess');
+
+
+
+
+
+
+
+
+    if (uploadProfilePictureBtn) {
+        uploadProfilePictureBtn.addEventListener('click', async (e) => {
+          e.preventDefault(); // Prevent default form submission (if it's a form)
+    
+          const file = profilePictureInput.files[0];
+    
+          if (!file) {
+            profilePictureError.textContent = 'Please select a file to upload.';
+            profilePictureSuccess.textContent = '';
+            return;
+          }
+    
+          const formData = new FormData();
+          formData.append('profilePicture', file);
+    
+          try {
+            const response = await fetch('/user/profile-picture', {
+              method: 'POST',
+              body: formData,
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+              profilePictureSuccess.textContent = data.message;
+              profilePictureError.textContent = '';
+              profilePicturePreview.src = data.profilePicture;
+            } else {
+              profilePictureError.textContent = data.message;
+              profilePictureSuccess.textContent = '';
+            }
+          } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            profilePictureError.textContent = 'Failed to upload profile picture.';
+            profilePictureSuccess.textContent = '';
+          }
+        });
+      } else {
+        console.warn("Upload Profile Picture Button not found!");
+      }
+    
+    
+      // Edit Username
+      const editUsernameForm = document.getElementById('editUsernameForm');
+      const editUsernameBtn = document.getElementById('editUsernameBtn');
+      const newUsernameInput = document.getElementById('newUsername');
+      const usernameError = document.getElementById('usernameError');
+      const usernameSuccess = document.getElementById('usernameSuccess');
+    
+      if (editUsernameBtn) {
+        editUsernameBtn.addEventListener('click', async (e) => {
+          e.preventDefault(); // Prevent default form submission (if it's a form)
+    
+          const newUsername = newUsernameInput.value;
+    
+          try {
+            const response = await fetch('/user/edit-username', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ newUsername }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+              usernameSuccess.textContent = data.message;
+              usernameError.textContent = '';
+            } else {
+              usernameError.textContent = data.message;
+              usernameSuccess.textContent = '';
+            }
+          } catch (error) {
+            console.error('Error updating username:', error);
+            usernameError.textContent = 'Failed to update username.';
+            usernameSuccess.textContent = '';
+          }
+        });
+      } else {
+        console.warn("Edit Username Button not found!");
+      }
+    
+      // Edit Email
+      const editEmailForm = document.getElementById('editEmailForm');
+      const editEmailBtn = document.getElementById('editEmailBtn');
+      const newEmailInput = document.getElementById('newEmail');
+      const emailError = document.getElementById('emailError');
+      const emailSuccess = document.getElementById('emailSuccess');
+    
+      if (editEmailBtn) {
+        editEmailBtn.addEventListener('click', async (e) => {
+          //e.preventDefault(); // Prevent default form submission (if it's a form)
+    
+          const newEmail = newEmailInput.value;
+    
+          try {
+            const response = await fetch('/user/edit-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ newEmail }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+              emailSuccess.textContent = data.message;
+              emailError.textContent = '';
+            } else {
+              emailError.textContent = data.message;
+              emailSuccess.textContent = '';
+            }
+          } catch (error) {
+            console.error('Error updating email:', error);
+            emailError.textContent = 'Failed to update email.';
+            emailSuccess.textContent = '';
+          }
+        });
+      } else {
+        console.warn("Edit Email Button not found!");
+      }
+
+
+
     // Function to open a specific chat
     window.openChat = async (chatId) => {
         currentlyOpenChatId = chatId;
@@ -111,19 +251,20 @@ document.addEventListener('DOMContentLoaded', () => {
    }
     
 
-   if(closePrivateModal){
-    closePrivateModal.addEventListener('click', () => {
-        privateChatModal.style.display = 'none';
-        privateChatError.textContent = '';
-        privateChatSuccess.textContent = '';
-    });
-   }
+//    if(closePrivateModal){
+//     closePrivateModal.addEventListener('click', () => {
+//         privateChatModal.style.display = 'none';
+//         privateChatError.textContent = '';
+//         privateChatSuccess.textContent = '';
+//     });
+//    }
 
     
 
 
    if(createPrivateChatBtn){
     createPrivateChatBtn.addEventListener('click', async () => {
+        console.log("sdfbsdf")
         const recipientEmail = recipientEmailInput.value;
         privateChatError.textContent = '';
         privateChatSuccess.textContent = '';
@@ -277,4 +418,4 @@ document.addEventListener('DOMContentLoaded', () => {
              groupChatModal.setAttribute('aria-hidden', 'true');
         }
     });
-        });
+});

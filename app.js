@@ -96,10 +96,14 @@ app.get('/settings', isLoggedIn, async (req, res) => {
   }
 });
 
+app.get('*',(req, res)=>{
+  res.send('<h1></h1>')
+})
+
 const server = http.createServer(app);
 const io = socketIO(server);
 
-app.use(function (req, res, next) {
+app.use(function (req, res, next) {  
     req.app.io = io;
     next();
 });
@@ -116,6 +120,8 @@ io.on('connection', (socket) => {
         console.log('User disconnected:', socket.id);
     });
 });
+
+
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
